@@ -14,6 +14,10 @@ import { onMounted } from 'vue'
 const route = useRoute()
 const { token } = useAuth()
 
+definePageMeta({
+  path: '/callback'
+})
+
 onMounted(() => {
   const queryToken = route.query.token as string
 

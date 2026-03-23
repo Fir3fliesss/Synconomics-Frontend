@@ -14,10 +14,11 @@
           </p>
           
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <input type="email" placeholder="Masukkan email bisnis" class="px-6 py-4 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-syn-accent/50 w-full sm:w-80 text-center sm:text-left">
-              <button class="magnetic-btn px-8 py-4 bg-syn-accent text-syn-dark rounded-full font-display font-medium hover:bg-white transition-colors duration-300">
-                  Daftar Early Access
-              </button>
+              <a href="/auth/register">
+                  <button class="magnetic-btn cursor-pointer px-8 py-4 bg-syn-accent text-syn-dark rounded-full font-display font-medium hover:bg-white transition-colors duration-300">
+                      Daftar Sekarang
+                  </button>
+              </a>
           </div>
           
           <!-- <div class="flex justify-center gap-8 text-sm text-syn-muted">
