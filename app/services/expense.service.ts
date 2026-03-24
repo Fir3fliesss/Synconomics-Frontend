@@ -4,14 +4,21 @@ import type { Expense } from '../types/expense.types';
 
 export const expenseService = {
   getByBusinessId(businessId: number): Promise<ApiResponse<Expense[]>> {
-    return apiFetch(`/business/${businessId}/expenses`, {
+    return apiFetch(`/expenses/business/${businessId}`, {
       method: 'GET'
     });
   },
 
-  create(businessId: number, payload: any): Promise<ApiResponse<Expense>> {
-    return apiFetch(`/business/${businessId}/expenses`, {
+  create(payload: any): Promise<ApiResponse<Expense>> {
+    return apiFetch(`/expenses`, {
       method: 'POST',
+      body: payload
+    });
+  },
+
+  update(id: number, payload: any): Promise<ApiResponse<Expense>> {
+    return apiFetch(`/expenses/${id}`, {
+      method: 'PUT',
       body: payload
     });
   },

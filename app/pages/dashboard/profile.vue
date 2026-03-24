@@ -116,7 +116,8 @@
 import { useAuth } from '~/composables/useAuth';
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: 'auth'
 });
 
 const { user, FetchProfile, UpdateProfile, Logout } = useAuth();

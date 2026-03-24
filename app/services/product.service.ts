@@ -3,21 +3,20 @@ import type { ApiResponse } from '../types/api.types';
 import type { Product } from '../types/product.types';
 
 export const productService = {
-  // Products are usually grouped by business in the API design
   getByBusinessId(businessId: number): Promise<ApiResponse<Product[]>> {
-    return apiFetch(`/business/${businessId}/products`, {
+    return apiFetch(`/products/business/${businessId}`, {
       method: 'GET'
     });
   },
 
-  create(businessId: number, payload: FormData): Promise<ApiResponse<Product>> {
-    return apiFetch(`/business/${businessId}/products`, {
+  create(payload: any): Promise<ApiResponse<Product>> {
+    return apiFetch(`/products`, {
       method: 'POST',
       body: payload
     });
   },
 
-  update(id: number, payload: FormData): Promise<ApiResponse<Product>> {
+  update(id: number, payload: any): Promise<ApiResponse<Product>> {
     return apiFetch(`/products/${id}`, {
       method: 'PUT',
       body: payload

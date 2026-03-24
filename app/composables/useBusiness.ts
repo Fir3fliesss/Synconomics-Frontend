@@ -7,7 +7,7 @@ export const useBusiness = () => {
   const isSaving = ref(false);
   const error = ref<string | null>(null);
   
-  const businesses = ref<Business[]>([]);
+  const businesses = ref<Business[]>([]) ;
   const currentBusiness = ref<Business | null>(null);
   const metrics = ref<BusinessMetric[]>([]);
 

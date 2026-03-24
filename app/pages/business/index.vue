@@ -124,7 +124,8 @@ import { useBusiness } from '~/composables/useBusiness';
 import type { Business } from '~/types/business.types';
 
 definePageMeta({
-  layout: 'dashboard'
+  layout: 'dashboard',
+  middleware: 'auth'
 });
 
 const { businesses, isLoading, error, isSaving, fetchBusinesses, createBusiness, updateBusiness } = useBusiness();

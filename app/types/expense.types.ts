@@ -4,7 +4,6 @@ export interface Expense {
   title: string;
   amount: number;
   category: string;
-  description: string;
-  date: string;
-  created_at: string;
+  description?: string;
+  expense_date: string;
 }

@@ -21,11 +21,11 @@ export const useProduct = () => {
     }
   };
 
-  const createProduct = async (businessId: number, formData: FormData) => {
+  const createProduct = async (payload: any) => {
     isSaving.value = true;
     error.value = null;
     try {
-      const response = await productService.create(businessId, formData);
+      const response = await productService.create(payload);
       products.value.push(response.data);
       return response.data;
     } catch (err: any) {
@@ -50,6 +50,24 @@ export const useProduct = () => {
     }
   };
 
+  const updateProduct = async (id: number, payload: any) => {
+    isSaving.value = true;
+    error.value = null;
+    try {
+      const response = await productService.update(id, payload);
+      const index = products.value.findIndex(p => p.id === id);
+      if (index !== -1) {
+        products.value[index] = response.data;
+      }
+      return response.data;
+    } catch (err: any) {
+      error.value = err.data?.message || 'Gagal mengubah produk';
+      throw err;
+    } finally {
+      isSaving.value = false;
+    }
+  };
+
   return {
     isLoading,
     isSaving,
@@ -57,6 +75,7 @@ export const useProduct = () => {
     products,
     fetchProducts,
     createProduct,
+    updateProduct,
     deleteProduct
   };
 };

@@ -20,12 +20,12 @@ export const useExpense = () => {
     }
   };
 
-  const createExpense = async (businessId: number, data: any) => {
+  const createExpense = async (data: any) => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await expenseService.create(businessId, data);
-      expenses.value.push(response.data);
+      const response = await expenseService.create(data);
+      expenses.value.unshift(response.data);
       return response.data;
     } catch (err: any) {
       error.value = err.data?.message || 'Gagal membuat expense';
@@ -49,12 +49,31 @@ export const useExpense = () => {
     }
   };
 
+  const updateExpense = async (id: number, payload: any) => {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const response = await expenseService.update(id, payload);
+      const index = expenses.value.findIndex(e => e.id === id);
+      if (index !== -1) {
+        expenses.value[index] = response.data;
+      }
+      return response.data;
+    } catch (err: any) {
+      error.value = err.data?.message || 'Gagal mengubah transaksi';
+      throw err;
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     isLoading,
     error,
     expenses,
     fetchExpenses,
     createExpense,
+    updateExpense,
     deleteExpense
   };
 };
