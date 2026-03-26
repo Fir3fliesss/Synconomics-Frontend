@@ -67,8 +67,8 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                   <span>Reply</span>
                 </div>
-                <!-- Inline edit action -->
-                <div @click.prevent="openEditModal(thread)" class="flex items-center gap-1.5 hover:text-syn-accent transition-colors opacity-0 group-hover:opacity-100">
+                <!-- Inline edit action (Only for thread owner) -->
+                <div v-if="user && thread.user_id === user.id" @click.prevent="openEditModal(thread)" class="flex items-center gap-1.5 hover:text-syn-accent transition-colors opacity-0 group-hover:opacity-100">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   <span>Edit</span>
                 </div>
@@ -151,12 +151,14 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useAuth } from '~/composables/useAuth';
 
 definePageMeta({
   layout: 'dashboard',
   middleware:'auth'
 });
 
+const { user } = useAuth();
 const { threads, isLoading, isSaving, fetchThreads, createThread, updateThread } = useCommunity();
 
 const showModal = ref(false);

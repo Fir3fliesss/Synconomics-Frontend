@@ -48,5 +48,18 @@ export const businessService = {
       method: 'POST',
       body: payload
     });
+  },
+
+  getLatestMetrics(businessId: number): Promise<ApiResponse<BusinessMetric>> {
+    return apiFetch(`/business-metrics/business/${businessId}/latest`, {
+      method: 'GET'
+    });
+  },
+
+  // Business Scores
+  getLatestScore(businessId: number): Promise<ApiResponse<any>> {
+    return apiFetch(`/business-scores/business/${businessId}/latest`, {
+      method: 'GET'
+    });
   }
 };

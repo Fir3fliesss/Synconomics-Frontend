@@ -8,8 +8,8 @@ export const useAuth = () => {
   const userCookie = useCookie<User | null>('user_data', { maxAge: 60 * 60 * 24 * 7 })
   const userState = useState<User | null>('auth_user', () => userCookie.value || null)
 
-  // Auto-fetch if token exists but state is empty (e.g. on refresh)
-  if (tokenCookie.value && !userState.value && import.meta.client) {
+  // Auto-fetch if token exists but state is incomplete
+  if (tokenCookie.value && (!userState.value || !userState.value.name) && import.meta.client) {
     onMounted(() => {
       FetchProfile()
     })
@@ -74,18 +74,8 @@ export const useAuth = () => {
       if (token) {
         tokenCookie.value = token
         
-        // Populate user state from response if available
-        const userData = raw?.user || raw?.data?.user || raw?.data || null
-        if (userData && userData.id) {
-          // Merge avatar if present at the top level of raw response
-          if (raw?.avatar && typeof userData === 'object') {
-            userData.avatar = raw.avatar;
-          }
-          userState.value = userData
-          userCookie.value = userData
-        } else {
-          await FetchProfile()
-        }
+        // Always fetch the latest complete profile to avoid missing fields like 'name'
+        await FetchProfile()
       } else {
         console.error('[useAuth] CRITICAL: Token tidak ditemukan di response!', raw)
       }

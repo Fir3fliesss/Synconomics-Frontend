@@ -47,7 +47,7 @@ const avatarUrl = computed(() => {
 });
 
 onMounted(async () => {
-  if (!user.value) {
+  if (!user.value || !user.value.name) {
     await FetchProfile();
   }
 });

@@ -146,7 +146,7 @@ const message = ref<{ type: 'success' | 'error', text: string } | null>(null);
 
 onMounted(async () => {
   console.log('[Profile] Initial user state:', JSON.stringify(user.value));
-  if (!user.value) {
+  if (!user.value || !user.value.name) {
     const data = await FetchProfile();
     console.log('[Profile] Fetched profile data:', JSON.stringify(data));
     if (data) {

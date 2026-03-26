@@ -1,0 +1,17 @@
+/auth/me-with-businesses
+/business
+/business-metrics
+/business-metrics/business/{id}
+/business-metrics/business/{id}/latest
+/business-metrics/{id}
+/business-scores
+/business-scores/business/{id}
+/business-scores/business/{id}/latest
+/business-scores/{id}
+/business/me
+/business/{id}
+/expenses/business/{id}
+/products/business/{businessId}
+/supply-offers/business/{id}
+/supply-requests/business/{id}
+/transactions/business/{id}

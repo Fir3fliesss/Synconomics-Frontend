@@ -71,7 +71,7 @@
             </div>
             <p v-else class="text-sm text-syn-cream/80 leading-relaxed font-sans">{{ reply.content }}</p>
 
-            <div v-if="editingReplyId !== reply.id" class="absolute top-0 right-0 opacity-0 group-hover/reply:opacity-100 transition-opacity flex gap-2">
+            <div v-if="editingReplyId !== reply.id && user && reply.user_id === user.id" class="absolute top-0 right-0 opacity-0 group-hover/reply:opacity-100 transition-opacity flex gap-2">
               <button @click="startEditingReply(reply)" class="text-xs text-syn-muted hover:text-syn-accent">Edit</button>
             </div>
           </div>
@@ -104,6 +104,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useAuth } from '~/composables/useAuth';
 
 definePageMeta({
   layout: 'dashboard',
@@ -111,6 +112,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const { user } = useAuth();
 const threadId = computed(() => Number(route.params.id));
 
 const { 
