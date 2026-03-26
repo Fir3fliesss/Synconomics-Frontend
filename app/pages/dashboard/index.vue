@@ -81,7 +81,7 @@ onMounted(async () => {
     currentBusinessId.value = currentBusiness.value.id;
   } else if (metrics.value.length > 0) {
     // Fallback: if currentBusiness is not set, try to get business_id from a metric
-    currentBusinessId.value = metrics.value[0].business_id;
+    currentBusinessId.value = metrics.value[0]?.business_id ?? 1;
   } else {
     // Fallback: if no business or metrics, use a default or handle error
     console.warn("No current business or metrics found. Using a placeholder business ID (1) for product management.");
@@ -93,7 +93,7 @@ const latestMetric = computed<BusinessMetric | null>(() => {
   if (metrics.value && metrics.value.length > 0) {
     // Assuming the latest metric is the first one in the array if sorted by date desc
     // A more robust solution would sort by period_end or created_at.
-    return metrics.value[0]; 
+    return metrics.value[0] ?? null; 
   }
   return null;
 });
@@ -101,7 +101,7 @@ const latestMetric = computed<BusinessMetric | null>(() => {
 const previousMetric = computed<BusinessMetric | null>(() => {
   if (metrics.value && metrics.value.length > 1) {
     // Assuming the second latest metric is the second one in the array
-    return metrics.value[1];
+    return metrics.value[1] ?? null;
   }
   return null;
 });
