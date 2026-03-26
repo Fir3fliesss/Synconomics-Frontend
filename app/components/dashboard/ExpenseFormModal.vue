@@ -46,10 +46,11 @@
           <div class="relative">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-syn-muted">Rp</span>
             <input 
-              v-model="form.amount" 
-              type="number" 
+              v-model="formattedAmount" 
+              @input="handleAmountInput"
+              type="text" 
+              inputmode="numeric"
               required 
-              min="0"
               class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-syn-accent outline-none text-white transition-colors"
             >
           </div>
@@ -68,8 +69,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import type { Expense } from '../../types/expense.types';
+import { useExpense } from '~/composables/useExpense';
 
 const props = defineProps<{
   businessId: number;
@@ -87,28 +89,79 @@ const isSubmitting = ref(false);
 const form = ref({
   title: props.initialData?.title || '',
   category: props.initialData?.category || 'cost',
-  amount: props.initialData ? Math.abs(props.initialData.amount).toString() : ''
+  amount: props.initialData ? Math.abs(props.initialData.amount) : 0 // Store as number
 });
+
+const formattedAmount = ref('');
+
+// Function to format a number into IDR currency string without currency symbol
+const formatNumberToIDR = (value: number | string) => {
+  const num = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+  if (isNaN(num) || num === 0) return '';
+  return new Intl.NumberFormat('id-ID').format(num);
+};
+
+// Function to parse a formatted string back to a raw number
+const parseFormattedNumber = (formattedString: string) => {
+  if (!formattedString) return 0;
+  // Remove all non-digit characters except for a potential comma (for decimal, though IDR usually uses comma for thousands)
+  // For simplicity, assuming only thousands separator (dot) for now.
+  const cleanString = formattedString.replace(/\./g, ''); // Remove dots (thousands separator)
+  return parseFloat(cleanString);
+};
+
+// Initialize formattedAmount from form.amount
+watch(() => form.value.amount, (newVal) => {
+  formattedAmount.value = formatNumberToIDR(newVal);
+}, { immediate: true });
+
+// Update form.amount when formattedAmount changes (user input)
+const handleAmountInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const cursorPosition = target.selectionStart;
+  const oldValue = target.value;
+
+  const rawValue = parseFormattedNumber(target.value);
+  form.value.amount = rawValue;
+
+  // Re-format the input field value
+  const newFormattedValue = formatNumberToIDR(rawValue);
+  formattedAmount.value = newFormattedValue;
+
+  // Adjust cursor position after re-formatting
+  // This is a bit tricky and might not be perfect for all cases,
+  // but a basic attempt to keep the cursor in a reasonable place.
+  const diff = newFormattedValue.length - oldValue.length;
+  if (cursorPosition !== null) {
+    target.setSelectionRange(cursorPosition + diff, cursorPosition + diff);
+  }
+};
 
 watch(() => props.initialData, (newVal) => {
   if (newVal) {
     form.value = {
       title: newVal.title,
       category: newVal.category,
-      amount: Math.abs(newVal.amount).toString()
+      amount: Math.abs(newVal.amount)
+    };
+  } else {
+    form.value = {
+      title: '',
+      category: 'cost',
+      amount: 0
     };
   }
 }, { immediate: true });
 
 const handleSubmit = async () => {
-  if (!form.value.title || !form.value.amount || !props.businessId) return;
+  if (!form.value.title || form.value.amount <= 0 || !props.businessId) return; // Check amount > 0
   
   isSubmitting.value = true;
   try {
     const payload = {
       title: form.value.title,
       category: form.value.category,
-      amount: Number(form.value.amount),
+      amount: form.value.amount, // Use the raw number
       business_id: props.businessId
     };
     

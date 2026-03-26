@@ -79,10 +79,10 @@ const maxPerformanceValue = computed(() => {
 });
 
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0, // No cents for bar chart labels
+    currency: 'IDR',
+    minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(value);
 };
