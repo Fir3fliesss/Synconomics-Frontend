@@ -8,7 +8,7 @@
         <p class="text-syn-muted text-[15px]">Connect with other businesses, ask for supplies, or establish local networks.</p>
       </div>
       <div class="relative z-10 w-full sm:w-auto">
-        <button 
+        <button
           @click="showModal = true; selectedThread = null; form = { title: '', content: '' }"
           class="w-full sm:w-auto px-5 py-3 bg-syn-accent/10 text-syn-accent border border-syn-accent/20 rounded-xl font-medium hover:bg-syn-accent hover:text-syn-dark transition-all flex justify-center items-center gap-2"
         >
@@ -20,7 +20,7 @@
 
     <!-- Feed Content di sebut gini kan ya feed feed an -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      
+
       <!-- ini feed utamanya buar ga lupa -->
       <div class="lg:col-span-3 space-y-5">
         <div v-if="isLoading && !threads.length" class="py-20 flex justify-center">
@@ -39,8 +39,8 @@
         </div>
 
         <!-- Thread Cardsnya biar ga lupa -->
-        <NuxtLink 
-          v-for="thread in threads" 
+        <NuxtLink
+          v-for="thread in threads"
           :key="thread.id"
           :to="`/dashboard/community/${thread.id}`"
           class="block glass-card p-6 rounded-3xl border border-white/5 hover:border-syn-accent/30 transition-all group relative overflow-hidden"
@@ -61,7 +61,7 @@
               <p class="text-sm text-syn-cream/70 line-clamp-2 leading-relaxed mb-4">
                 {{ thread.content }}
               </p>
-              
+
               <div class="flex items-center gap-4 text-xs text-syn-muted">
                 <div class="flex items-center gap-1.5 hover:text-syn-accent transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -101,7 +101,7 @@
         <div class="glass-card p-6 rounded-3xl border border-white/5 bg-linear-to-b from-syn-accent/5 to-transparent">
           <h3 class="font-medium text-white mb-2">Local Radius Match</h3>
           <p class="text-xs text-syn-muted mb-4 leading-relaxed">Expand your business network by finding partners within a 5km radius directly through the community.</p>
-          <button class="w-full py-2 bg-syn-darker border border-white/10 hover:border-syn-accent text-sm text-syn-cream rounded-xl transition-all">Scan Network</button>
+          <button @click="navigateTo('/dashboard/supply', { external: true })" class="w-full py-2 bg-syn-darker border border-white/10 hover:border-syn-accent text-sm text-syn-cream rounded-xl transition-all">Scan Network</button>
         </div>
       </div>
     </div>
@@ -116,32 +116,32 @@
         <h2 class="font-display text-2xl mb-6 text-white tracking-tight">
           {{ selectedThread ? 'Edit Thread' : 'Post to Community' }}
         </h2>
-        
+
         <form @submit.prevent="handleCreateThread" class="space-y-5">
           <div>
             <label class="block text-sm text-syn-muted mb-2 font-medium">Thread Title</label>
-            <input 
-              v-model="form.title" 
+            <input
+              v-model="form.title"
               placeholder="E.g., Looking for raw coffee beans supplier"
-              type="text" 
-              required 
+              type="text"
+              required
               class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-syn-accent outline-none text-white placeholder-white/20 transition-colors"
             >
           </div>
 
           <div>
             <label class="block text-sm text-syn-muted mb-2 font-medium">Content</label>
-            <textarea 
-              v-model="form.content" 
+            <textarea
+              v-model="form.content"
               rows="5"
               placeholder="Explain your needs or share your advice..."
-              required 
+              required
               class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-syn-accent outline-none text-white placeholder-white/20 transition-colors resize-none"
             ></textarea>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             :disabled="isSaving"
             class="w-full py-4 mt-6 bg-syn-accent text-syn-dark rounded-xl font-display font-medium hover:bg-white transition-colors disabled:opacity-50"
           >
@@ -191,7 +191,7 @@ const closeModal = () => {
 
 const handleCreateThread = async () => {
   if (!form.value.title || !form.value.content) return;
-  
+
   try {
     if (selectedThread.value) {
       await updateThread(selectedThread.value.id, {
@@ -227,10 +227,10 @@ const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-  
+
   if (diffInHours < 1) return 'Just now';
   if (diffInHours < 24) return `${diffInHours}h ago`;
-  
+
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric'

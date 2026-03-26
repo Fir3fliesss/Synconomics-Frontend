@@ -1,42 +1,46 @@
 <template>
   <div class="space-y-6 flex flex-col h-[calc(100vh-8rem)]">
-    <div class="flex justify-between items-center shrink-0">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
       <div>
         <h1 class="font-display text-4xl mb-2 text-syn-accent">Supply Network</h1>
-        <p class="text-syn-muted">Jelajahi dan temukan peluang kerjasama bisnis di sekitar Anda.</p>
-      </div>
-      <div v-if="!isLoading" class="flex items-center gap-4 text-sm font-medium">
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
-          <span class="text-syn-cream">Bisnis Kamu</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-          <span class="text-syn-cream">Bisnis Lain</span>
-        </div>
-        <div class="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-syn-muted">
-          {{ businesses.length }} Terdaftar
-        </div>
+        <p class="text-syn-muted">Jelajahi jaringan bisnis di sekitar Anda.</p>
       </div>
     </div>
 
-    <!-- Map Container -->
-    <div class="glass-card rounded-3xl border border-white/5 overflow-hidden flex-1 relative min-h-[500px]">
-      <div v-if="isLoading" class="absolute inset-0 bg-syn-darker/80 backdrop-blur-sm z-20 flex items-center justify-center">
-        <div class="w-10 h-10 border-4 border-syn-accent border-t-transparent rounded-full animate-spin"></div>
-      </div>
-      
-      <div v-if="error" class="absolute inset-0 bg-syn-darker/80 backdrop-blur-sm z-20 flex items-center justify-center p-8 text-center text-red-400">
-        {{ error }}
-      </div>
+    <!-- Active Content -->
+    <div class="flex-1 flex flex-col min-h-0">
+      <!-- Network Map -->
+      <div class="glass-card rounded-3xl border border-white/5 overflow-hidden flex-1 relative min-h-[500px]">
+        <div v-if="isLoadingNetwork" class="absolute inset-0 bg-syn-darker/80 backdrop-blur-sm z-20 flex items-center justify-center">
+          <div class="w-10 h-10 border-4 border-syn-accent border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        
+        <div v-if="networkError" class="absolute inset-0 bg-syn-darker/80 backdrop-blur-sm z-20 flex items-center justify-center p-8 text-center text-red-400">
+          {{ networkError }}
+        </div>
 
-      <div id="map" class="w-full h-full z-10 bg-[#1e1e1e]"></div>
+        <!-- Legend -->
+        <div class="absolute top-4 right-4 z-[11] flex flex-col gap-2 scale-90 origin-top-right">
+          <div class="px-3 py-2 bg-syn-darker/90 backdrop-blur-md rounded-xl border border-white/10 flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
+              <span class="text-[10px] font-bold text-white uppercase tracking-wider">Bisnis Kamu</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div>
+              <span class="text-[10px] font-bold text-white uppercase tracking-wider">Bisnis Lain</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="map" class="w-full h-full z-10 bg-[#1e1e1e]"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useSupplyNetwork } from '~/composables/useSupplyNetwork';
 import { useAuth } from '~/composables/useAuth';
 import { useHead } from '#imports';
@@ -55,7 +59,7 @@ definePageMeta({
   middleware: 'auth'
 });
 
-const { businesses, isLoading, error, fetchPublicBusinesses } = useSupplyNetwork();
+const { businesses: networkBusinesses, isLoading: isLoadingNetwork, error: networkError, fetchPublicBusinesses } = useSupplyNetwork();
 const { user } = useAuth();
 
 let map: any = null;
@@ -72,9 +76,7 @@ const checkLeafletLoaded = (retries = 30) => {
 };
 
 onMounted(async () => {
-  // Wait for the external script to finish loading and map div to mount
   checkLeafletLoaded();
-  
   await fetchPublicBusinesses();
 });
 
@@ -90,10 +92,11 @@ const initMap = () => {
   const L = (window as any).L;
   if (!L || map) return;
 
-  // Default coordinate: Center of Indonesia roughly
+  const mapEl = document.getElementById('map');
+  if (!mapEl) return;
+
   map = L.map('map').setView([-2.5489, 118.0149], 5);
 
-  // Darker Map style for synconomics theme
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors, © CARTO'
@@ -102,7 +105,7 @@ const initMap = () => {
   plotMarkers();
 };
 
-watch(businesses, () => {
+watch(networkBusinesses, () => {
   if (map) {
     plotMarkers();
   }
@@ -112,23 +115,17 @@ const plotMarkers = () => {
   const L = (window as any).L;
   if (!L || !map) return;
 
-  // Clear existing markers
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  let hasValidCoordinates = false;
-
-  businesses.value.forEach(business => {
+  networkBusinesses.value.forEach(business => {
     if (business.latitude && business.longitude) {
       const lat = parseFloat(business.latitude as unknown as string);
       const lng = parseFloat(business.longitude as unknown as string);
       
       if (!isNaN(lat) && !isNaN(lng)) {
-        hasValidCoordinates = true;
-        
-        // Different colors based on ownership
         const isOwner = user.value && business.user_id === user.value.id;
-        const markerColor = isOwner ? '#34d399' : '#3b82f6'; // Emerald for owner, Blue for others
+        const markerColor = isOwner ? '#34d399' : '#3b82f6';
         
         const customIcon = L.divIcon({
           className: 'custom-div-icon',
@@ -137,12 +134,11 @@ const plotMarkers = () => {
           iconAnchor: [12, 12]
         });
 
-        // Resolve logo URL
         const displayLogo = business.logo_url 
            ? (business.logo_url.startsWith('http') ? business.logo_url : `https://api-synconomics.synchronizeteams.com/${business.logo_url}`)
            : '';
 
-        const whatsappLink = business.whatsapp ? `https://wa.me/${business.whatsapp.replace(/\\D/g, '').replace(/^0/, '62')}` : '';
+        const whatsappLink = business.whatsapp ? `https://wa.me/${business.whatsapp.replace(/\D/g, '').replace(/^0/, '62')}` : '';
 
         const popupContent = `
           <div style="font-family: 'Inter', sans-serif; color: #1e1e1e; min-width: 220px; max-width: 280px;">
@@ -169,7 +165,6 @@ const plotMarkers = () => {
     }
   });
 
-  // Fit bounds to show all markers if there are any
   if (markers.length > 0) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 15 });
@@ -178,7 +173,6 @@ const plotMarkers = () => {
 </script>
 
 <style>
-/* Leaflet dark theme adjustments for popups */
 .leaflet-popup-content-wrapper {
   background: #ffffff !important;
   border-radius: 16px !important;
