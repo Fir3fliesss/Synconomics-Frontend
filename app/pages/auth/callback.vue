@@ -14,9 +14,9 @@ import { onMounted } from 'vue'
 const route = useRoute()
 const { token } = useAuth()
 
-definePageMeta({
-  path: '/callback'
-})
+// definePageMeta({
+//   path: '/callback'
+// })
 
 onMounted(() => {
   const queryToken = route.query.token as string
@@ -26,7 +26,7 @@ onMounted(() => {
 
     setTimeout(() => {
         navigateTo('/dashboard')
-    }, 1000) 
+    }, 1000)
   } else {
     navigateTo('/auth/login')
   }
